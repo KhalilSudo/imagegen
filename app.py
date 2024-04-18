@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify
 from gradio_client import Client
+import base64
 
 app = Flask(__name__)
 
@@ -38,7 +39,7 @@ def predict():
             negative_prompt,
             sampling_steps,
             cfg_scale,
-            sampling_method,  # Handle potential errors here (discussed later)
+            sampling_method,
             seed,
             strength,
             chatgpt,
@@ -47,7 +48,11 @@ def predict():
             api_name="/predict",
         )
 
-        return jsonify({"filepath": result})
+        # Encode image to base64 string
+        with open(result, "rb") as image_file:
+            encoded_image = base64.b64encode(image_file.read()).decode("utf-8")
+
+        return jsonify({"image": encoded_image})
 
     except (ValueError, Exception) as e:
         # Handle any exceptions during processing
